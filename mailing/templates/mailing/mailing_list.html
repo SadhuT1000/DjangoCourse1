@@ -1,0 +1,35 @@
+{% extends 'mailing/base.html' %}
+
+{% block content %}
+<div class="container marketing mt-5">
+    <div class="container text-center mt-3">
+        <div class="row justify-content-center">
+            <div class="col-4">
+
+            </div>
+            <div class="col-4 mt-5" >
+                <a class="btn btn-success" href="{% url 'mailing:mailing_create' %}">Создать рассылку &raquo;</a></p>
+            </div>
+            <div class="col-4">
+
+            </div>
+        </div>
+
+    </div>
+    <div class="row">
+        {% for mailing in object_list %}
+        <div class="col-lg-4">
+
+            <h2 class="fw-normal">{{mailing.first_sending }}</h2>
+            <p>{{mailing.message }}</p>
+            <a class="btn btn-primary" href="{% url 'mailing:mailing_detail' mailing.pk%}">Посмотреть &raquo;</a>
+            <a class="btn btn-primary" href="{% url 'mailing:mailing_update' mailing.pk%}">Редактировать &raquo;</a>
+            <a class="btn btn-danger" href="{% url 'mailing:mailing_delete' mailing.pk%}">Удалить</a>
+
+            <p></p>
+
+        </div><!-- /.col-lg-4 -->
+        {% endfor%}
+    </div><!-- /.row -->
+</div><!-- /.container -->
+{% endblock %}}
