@@ -9,7 +9,7 @@ from mailing.models import ReceiveMail, Message, Mailing, AttemptMailing
 from django.urls import reverse_lazy, reverse
 from .forms import (MailingForm, MessageForm, ReceiveMailModeratorForm,
                     MailingModeratorForm, ReceiveMailModeratorForm, ReceiveMailForm)
-
+from .services import get_mailing_from_cache, get_attempt_from_cache
 
 
 def base(request):
@@ -52,6 +52,10 @@ class Message(TemplateView):
 # CRUD для рассылок
 class MailingListView(ListView):
     model = Mailing
+    template_name = "mailing/receivemail_list.html"
+
+    def get_queryset(self):
+        return get_mailing_from_cache()
 
 class MailingCreateView(LoginRequiredMixin, CreateView):
     model = Mailing
@@ -62,6 +66,11 @@ class MailingCreateView(LoginRequiredMixin, CreateView):
 class MailingDetailView(LoginRequiredMixin, DetailView):
     model = Mailing
     form_class = MailingForm
+    template_name = "mailing/receivemail_list.html"
+
+    def get_queryset(self):
+        return get_mailing_from_cache()
+
 
 
 class MailingUpdateView(LoginRequiredMixin, UpdateView):
@@ -94,13 +103,23 @@ class ReceiveMailDetailView(LoginRequiredMixin, DetailView):
 class ReceiveMailCreateView(LoginRequiredMixin, CreateView):
     model = ReceiveMail
     form_class = ReceiveMailModeratorForm
-    success_url = reverse_lazy('mailing:receive_list')
+    template_name = 'mailing/receivemail_form.html'
+    success_url = reverse_lazy('mailing:receivemail_list')
+
+    def form_valid(self, form):
+        client = form.save()
+        user = self.request.user
+        client.owner = user
+        client.save()
+
+        return super().form_valid(form)
 
 
 class ReceiveMailUpdateView(LoginRequiredMixin, UpdateView):
     model = ReceiveMail
     form_class = ReceiveMailForm
-    success_url = reverse_lazy('mailing:receive_list')
+
+    success_url = reverse_lazy('mailing:receivemail_list')
 
     def get_form_class(self):
         user = self.request.user
@@ -112,7 +131,7 @@ class ReceiveMailUpdateView(LoginRequiredMixin, UpdateView):
 
 class ReceiveMailingDeleteView(LoginRequiredMixin, DeleteView):
     model = ReceiveMail
-    success_url = reverse_lazy('mailing:receive_list')
+    success_url = reverse_lazy('mailing:receivemail_list')
 
 
 # CRUD для сообщений
@@ -158,11 +177,18 @@ class MailingAttemptCreateView(LoginRequiredMixin, CreateView):
 
 class MailingAttemptListView(LoginRequiredMixin, ListView):
     model = AttemptMailing
+    template_name = "mailing/attemptmailing_list.html"
 
-    def get_queryset(self, *args, **kwargs):
-        if self.request.user.is_superuser:
-            return super().get_queryset()
-        elif self.request.user.groups.filter(name="Пользователи").exists():
-            return super().get_queryset().filter(owner=self.request.user)
+    def get_object(self, queryset=None):
+        self.object = super().get_object(queryset)
+        if self.request.user == self.object.owner:
+            self.object.save()
+            return self.object
         raise PermissionDenied
+
+
+    def get_queryset(self):
+       return get_attempt_from_cache()
+
+
 

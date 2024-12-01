@@ -1,7 +1,7 @@
 from django.forms import ModelForm, BooleanField
 from .models import Mailing, Message, AttemptMailing, ReceiveMail
 from django.core.exceptions import ValidationError
-
+from django import forms
 
 
 class StyleFormMixin:
@@ -13,6 +13,12 @@ class StyleFormMixin:
             else:
                 fild.widget.attrs['class'] = 'form-control'
 
+
+
+class EmailForm(forms.Form):
+    subject = forms.CharField(max_length=255, label="Тема письма")
+    message = forms.CharField(widget=forms.Textarea, label="Сообщение")
+    recipients = forms.CharField(widget=forms.Textarea, label="Получатели (через запятую)")
 
 
 class MailingForm(StyleFormMixin, ModelForm):

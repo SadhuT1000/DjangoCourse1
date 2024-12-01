@@ -1,5 +1,5 @@
 
-{% extends 'message/base.html' %}
+{% extends 'mailing/base.html' %}
 
 {% block content %}
 
@@ -16,10 +16,7 @@
                         <tr>
                             <td class="w-25">Страна</td>
                             <td>Россия</td>
-                        </tr>
-                        <tr>
-                            <td class="w-25">ИНН</td>
-                            <td>1650000000</td>
+
                         </tr>
                         <tr>
                             <td class="w-25">Адрес</td>
@@ -53,7 +50,7 @@
                             <label for="message">Сообщение</label>
                             <textarea type="text" name="message" class="form-control" id="message" placeholder="Введите сообщение" required></textarea>
                         </div>
-                        <a class="btn btn-dark" href="{% url 'message:message' %}" role="button">Отправить</a>
+                        <a class="btn btn-dark" href="{% url 'mailing:message' %}" role="button">Отправить</a>
                     </form>
                 </div>
             </div>
