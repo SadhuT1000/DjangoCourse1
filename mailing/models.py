@@ -1,3 +1,4 @@
+# flake8: noqa
 from django.db import models
 
 from users.models import User
@@ -6,72 +7,77 @@ from users.models import User
 class ReceiveMail(models.Model):
     """Модель «Получатель рассылки»:"""
 
-    mail = models.EmailField(max_length=255, verbose_name='Письмо', unique=True)
-    fio = models.CharField(max_length=255, verbose_name='ФИО')
-    comment = models.TextField(verbose_name='Комментарии', null=True, blank=True)
+    mail = models.EmailField(max_length=255, verbose_name="Письмо", unique=True)
+    fio = models.CharField(max_length=255, verbose_name="ФИО")
+    comment = models.TextField(verbose_name="Комментарии", null=True, blank=True)
     is_active = models.BooleanField(default=True, verbose_name="активность")
-    owner = models.ForeignKey(User, verbose_name="Получатель",
-                              help_text="укажите получателя рассылки",
-                              blank=True, null=True, on_delete=models.SET_NULL,)
+    owner = models.ForeignKey(
+        User,
+        verbose_name="Получатель",
+        help_text="укажите получателя рассылки",
+        blank=True,
+        null=True,
+        on_delete=models.SET_NULL,
+    )
+
     def __str__(self):
-        return f'{self.fio} {self.mail} '
+        return f"{self.fio} {self.mail} "
 
     class Meta:
-        verbose_name = 'получатель'
-        verbose_name_plural = 'получатели'
-        ordering = ['fio']
+        verbose_name = "получатель"
+        verbose_name_plural = "получатели"
+        ordering = ["fio"]
         permissions = [
-            ('can_blocking_client', 'Может блокировать получателя'),
+            ("can_blocking_client", "Может блокировать получателя"),
         ]
+
 
 class Message(models.Model):
     """Модель «Сообщение»:"""
 
-    subject = models.CharField(max_length=255, verbose_name='Тема письма')
-    content = models.TextField(verbose_name='Содержимое письма')
+    subject = models.CharField(max_length=255, verbose_name="Тема письма")
+    content = models.TextField(verbose_name="Содержимое письма")
 
     def __str__(self):
         return self.content
 
     class Meta:
-        verbose_name = 'письмо'
-        verbose_name_plural = 'письма'
-        ordering = ['subject']
-
+        verbose_name = "письмо"
+        verbose_name_plural = "письма"
+        ordering = ["subject"]
 
 
 class Mailing(models.Model):
     """Модель «Рассылка»:"""
 
-    CREATED = 'Создано'
-    LAUNCHED = 'Запущено'
-    FINISHED = 'Завершена'
+    CREATED = "Создано"
+    LAUNCHED = "Запущено"
+    FINISHED = "Завершена"
 
     STATUS_CHOICES = [
-    (CREATED, 'Создано'),
-    (LAUNCHED, 'Запущено'),
-    (FINISHED, 'Завершена'),
+        (CREATED, "Создано"),
+        (LAUNCHED, "Запущено"),
+        (FINISHED, "Завершена"),
     ]
 
     first_sending = models.DateTimeField(verbose_name="Дата первой отправки")
     end_sending = models.DateTimeField(verbose_name="Дата окончания отправки")
 
-    status = models.CharField(max_length=11,
-                              choices=STATUS_CHOICES,
-                              default=CREATED,
-                              verbose_name="Статус рассылки")
+    status = models.CharField(max_length=11, choices=STATUS_CHOICES, default=CREATED, verbose_name="Статус рассылки")
 
-    message = models.ForeignKey(Message, on_delete=models.CASCADE, verbose_name="Сообщение" , related_name='mailings')
-    client = models.ManyToManyField(ReceiveMail, verbose_name='Клиент')
+    message = models.ForeignKey(Message, on_delete=models.CASCADE, verbose_name="Сообщение", related_name="mailings")
+    client = models.ManyToManyField(ReceiveMail, verbose_name="Клиент")
 
     def __str__(self):
-        return f'{self.message}'
+        return f"{self.message}"
 
     class Meta:
-        verbose_name = 'Рассылка'
-        verbose_name_plural = 'Рассылки'
-        ordering = ['first_sending']
-        permissions = [("set_is_active", "set is active"),]
+        verbose_name = "Рассылка"
+        verbose_name_plural = "Рассылки"
+        ordering = ["first_sending"]
+        permissions = [
+            ("set_is_active", "set is active"),
+        ]
 
 
 class AttemptMailing(models.Model):
@@ -79,23 +85,13 @@ class AttemptMailing(models.Model):
 
     date_attempt = models.DateTimeField(verbose_name="Дата и время попытки")
     status = models.CharField(max_length=115, verbose_name="Статус попытки")
-    response = models.TextField(verbose_name='Комментарии', null=True, blank=True)
-    mailing = models.ForeignKey(Mailing, on_delete=models.CASCADE, verbose_name="Рассылка" , related_name='mailing')
-
+    response = models.TextField(verbose_name="Комментарии", null=True, blank=True)
+    mailing = models.ForeignKey(Mailing, on_delete=models.CASCADE, verbose_name="Рассылка", related_name="mailing")
 
     def __str__(self):
         return f'{self.date_attempt} "{self.status}" '
 
     class Meta:
-        verbose_name = 'попытка'
-        verbose_name_plural = 'попытки'
-        ordering = ['date_attempt', 'status']
-
-
-
-
-
-
-
-
-
+        verbose_name = "попытка"
+        verbose_name_plural = "попытки"
+        ordering = ["date_attempt", "status"]

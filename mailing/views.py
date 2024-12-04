@@ -1,15 +1,16 @@
+# flake8: noqa
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.exceptions import PermissionDenied
 from django.http import HttpResponse
-from django.shortcuts import render
-from django.shortcuts import render, get_object_or_404
-from django.views.generic import ListView, DetailView, TemplateView
-from django.views.generic.edit import CreateView, UpdateView, DeleteView
-from mailing.models import ReceiveMail, Message, Mailing, AttemptMailing
-from django.urls import reverse_lazy, reverse
-from .forms import (MailingForm, MessageForm, ReceiveMailModeratorForm,
-                    MailingModeratorForm, ReceiveMailModeratorForm, ReceiveMailForm)
-from .services import get_mailing_from_cache, get_attempt_from_cache
+from django.shortcuts import get_object_or_404, render
+from django.urls import reverse, reverse_lazy
+from django.views.generic import DetailView, ListView, TemplateView
+from django.views.generic.edit import CreateView, DeleteView, UpdateView
+
+from mailing.models import AttemptMailing, Mailing, Message, ReceiveMail
+
+from .forms import MailingForm, MailingModeratorForm, MessageForm, ReceiveMailForm, ReceiveMailModeratorForm
+from .services import get_attempt_from_cache, get_mailing_from_cache
 
 
 def base(request):
@@ -19,7 +20,7 @@ def base(request):
 
 # Главная страница
 class homeView(TemplateView):
-    template_name = 'mailing/home.html'
+    template_name = "mailing/home.html"
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -31,7 +32,6 @@ class homeView(TemplateView):
 
 # Шаблон контакты
 class Contacts(TemplateView):
-
 
     template_name = "mailing/contacts.html"
 
@@ -57,10 +57,11 @@ class MailingListView(ListView):
     def get_queryset(self):
         return get_mailing_from_cache()
 
+
 class MailingCreateView(LoginRequiredMixin, CreateView):
     model = Mailing
     form_class = MailingForm
-    success_url = reverse_lazy('mailing:mailing_list')
+    success_url = reverse_lazy("mailing:mailing_list")
 
 
 class MailingDetailView(LoginRequiredMixin, DetailView):
@@ -72,25 +73,25 @@ class MailingDetailView(LoginRequiredMixin, DetailView):
         return get_mailing_from_cache()
 
 
-
 class MailingUpdateView(LoginRequiredMixin, UpdateView):
     model = Mailing
     form_class = MailingForm
-    success_url = reverse_lazy('mailing:mailing_list')
+    success_url = reverse_lazy("mailing:mailing_list")
 
     def get_form_class(self):
         user = self.request.user
-        if user.has_perm('mailing.set_is_active'):
+        if user.has_perm("mailing.set_is_active"):
             return MailingModeratorForm
         return MailingForm
 
 
-
 class MailingDeleteView(LoginRequiredMixin, DeleteView):
     model = Mailing
-    success_url = reverse_lazy('mailing:mailing_list')
+    success_url = reverse_lazy("mailing:mailing_list")
+
 
 # CRUD для получателей
+
 
 class ReceiveMailListView(ListView):
     model = ReceiveMail
@@ -100,11 +101,12 @@ class ReceiveMailDetailView(LoginRequiredMixin, DetailView):
     model = ReceiveMail
     form_class = ReceiveMailModeratorForm
 
+
 class ReceiveMailCreateView(LoginRequiredMixin, CreateView):
     model = ReceiveMail
     form_class = ReceiveMailModeratorForm
-    template_name = 'mailing/receivemail_form.html'
-    success_url = reverse_lazy('mailing:receivemail_list')
+    template_name = "mailing/receivemail_form.html"
+    success_url = reverse_lazy("mailing:receivemail_list")
 
     def form_valid(self, form):
         client = form.save()
@@ -119,19 +121,18 @@ class ReceiveMailUpdateView(LoginRequiredMixin, UpdateView):
     model = ReceiveMail
     form_class = ReceiveMailForm
 
-    success_url = reverse_lazy('mailing:receivemail_list')
+    success_url = reverse_lazy("mailing:receivemail_list")
 
     def get_form_class(self):
         user = self.request.user
-        if user.has_perm('mailing.can_blocking_client'):
+        if user.has_perm("mailing.can_blocking_client"):
             return ReceiveMailModeratorForm
         return ReceiveMailForm
 
 
-
 class ReceiveMailingDeleteView(LoginRequiredMixin, DeleteView):
     model = ReceiveMail
-    success_url = reverse_lazy('mailing:receivemail_list')
+    success_url = reverse_lazy("mailing:receivemail_list")
 
 
 # CRUD для сообщений
@@ -147,22 +148,18 @@ class MessageDetailView(LoginRequiredMixin, DetailView):
 class MessageCreateView(LoginRequiredMixin, CreateView):
     model = Message
     form_class = MessageForm
-    success_url = reverse_lazy('mailing:message_list')
+    success_url = reverse_lazy("mailing:message_list")
 
 
 class MessageUpdateView(LoginRequiredMixin, UpdateView):
     model = Message
     form_class = MessageForm
-    success_url = reverse_lazy('mailing:message_list')
-
-
-
+    success_url = reverse_lazy("mailing:message_list")
 
 
 class MessageDeleteView(LoginRequiredMixin, DeleteView):
     model = Message
-    success_url = reverse_lazy('mailing:message_list')
-
+    success_url = reverse_lazy("mailing:message_list")
 
 
 class MailingAttemptCreateView(LoginRequiredMixin, CreateView):
@@ -186,9 +183,5 @@ class MailingAttemptListView(LoginRequiredMixin, ListView):
             return self.object
         raise PermissionDenied
 
-
     def get_queryset(self):
-       return get_attempt_from_cache()
-
-
-
+        return get_attempt_from_cache()
