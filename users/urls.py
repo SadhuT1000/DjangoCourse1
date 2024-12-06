@@ -10,7 +10,7 @@ from users.views import (
     UserDetailView,
     UserListView,
     UserUpdateView,
-    email_verification,
+    email_verification, PasswordRecoveryView,
 )
 # flake8: noqa
 app_name = UsersConfig.name
@@ -25,5 +25,6 @@ urlpatterns = [
     path("detail/<int:pk>/", UserDetailView.as_view(), name="user_detail"),
     path("update/<int:pk>/", UserUpdateView.as_view(), name="user_update"),
     path("delete/<int:pk>/", UserDeleteView.as_view(), name="user_delete"),
+    path("password-recovery/", PasswordRecoveryView.as_view(), name="password_recovery"),
     # path("attempt/", cache_page(60)(MailingAttemptListView.as_view()), name="attempt"),
 ]

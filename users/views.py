@@ -12,7 +12,8 @@ from django.utils.crypto import get_random_string
 from django.views.generic import CreateView, DeleteView, DetailView, FormView, ListView, TemplateView, UpdateView
 
 from config.settings import EMAIL_HOST_USER
-from users.forms import UserForgotPasswordForm, UserRegisterForm, UserSetNewPasswordForm, UserUpdateForm
+from users.forms import UserForgotPasswordForm, UserRegisterForm, UserSetNewPasswordForm, UserUpdateForm, \
+    PasswordRecoveryForm
 from users.models import User
 
 # Create your views here.
@@ -97,3 +98,26 @@ class UserForgotPasswordView(SuccessMessageMixin, PasswordResetView):
         context = super().get_context_data(**kwargs)
         context["title"] = "Запрос на восстановление пароля"
         return context
+
+
+class PasswordRecoveryView(FormView):
+    template_name = "users/password_recovery.html"
+    form_class = PasswordRecoveryForm
+    success_url = reverse_lazy("users:login")
+
+    def form_valid(self, form):
+        email = form.cleaned_data["email"]
+        user = User.objects.get(email=email)
+        length = 12
+        alphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+        password = get_random_string(length, alphabet)
+        user.set_password(password)
+        user.save()
+        send_mail(
+            subject="Восстановление пароля",
+            message=f"Ваш новый пароль: {password}",
+            from_email=EMAIL_HOST_USER,
+            recipient_list=[user.email],
+            fail_silently=False,
+        )
+        return super().form_valid(form)

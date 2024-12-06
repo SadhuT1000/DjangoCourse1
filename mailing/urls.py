@@ -1,18 +1,19 @@
 # flake8: noqa
 from django.urls import include, path
 from django.views.decorators.cache import cache_page
+from . import views
 
 from mailing.apps import MailingConfig
 from mailing.services import send_email
 from mailing.views import (Contacts, MailingAttemptCreateView, MailingAttemptListView, MailingCreateView, MailingDeleteView, MailingDetailView,
                            MailingListView, MailingUpdateView, Message, MessageCreateView, MessageDeleteView, MessageDetailView, MessageListView,
                            MessageUpdateView, ReceiveMailCreateView, ReceiveMailDetailView, ReceiveMailingDeleteView, ReceiveMailListView,
-                           ReceiveMailUpdateView, homeView)
+                           ReceiveMailUpdateView,home, homeView)
 
 app_name = MailingConfig.name
 
 urlpatterns = [
-    path("home/", homeView.as_view(), name="home"),
+    path("home/", views.home, name="home"),
     path("contacts/", Contacts.as_view(), name="contacts"),
     path("message/", Message.as_view(), name="message"),
     path("mailing/", cache_page(60)(MailingListView.as_view()), name="mailing_list"),

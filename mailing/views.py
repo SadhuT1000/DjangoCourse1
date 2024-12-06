@@ -13,6 +13,9 @@ from .forms import MailingForm, MailingModeratorForm, MessageForm, ReceiveMailFo
 from .services import get_attempt_from_cache, get_mailing_from_cache
 
 
+def home(request):
+    return render(request, 'home.html')
+
 def base(request):
 
     return render(request, "base.html")
@@ -21,6 +24,8 @@ def base(request):
 # Главная страница
 class homeView(TemplateView):
     template_name = "mailing/home.html"
+
+
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
