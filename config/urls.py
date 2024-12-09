@@ -5,10 +5,11 @@ from django.urls import include, path
 
 from config import settings
 from mailing import views
+from mailing.views import homeView
 
 urlpatterns = [
     path("admin/", admin.site.urls),
-    path('', views.home, name='home'),
+    path("", homeView.as_view(), name="home"),
     path("", include("mailing.urls", namespace="mailing")),
     path("users/", include("users.urls", namespace="users")),
 ]

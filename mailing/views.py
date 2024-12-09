@@ -1,7 +1,8 @@
 # flake8: noqa
+from django.contrib.auth import logout
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.exceptions import PermissionDenied
-from django.http import HttpResponse
+from django.http import HttpResponse, request
 from django.shortcuts import get_object_or_404, render
 from django.urls import reverse, reverse_lazy
 from django.views.generic import DetailView, ListView, TemplateView
@@ -13,8 +14,11 @@ from .forms import MailingForm, MailingModeratorForm, MessageForm, ReceiveMailFo
 from .services import get_attempt_from_cache, get_mailing_from_cache
 
 
-def home(request):
-    return render(request, 'home.html')
+
+
+
+# def home(request):
+#     return render(request, 'home.html')
 
 def base(request):
 
@@ -25,14 +29,15 @@ def base(request):
 class homeView(TemplateView):
     template_name = "mailing/home.html"
 
-
-
     def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context["mail_count"] = len(Mailing.objects.all())
-        context["active_count"] = len(Mailing.objects.filter(status="Запущен"))
-        context["unique_email"] = len(Mailing.objects.all())
-        return context
+        context_data = super().get_context_data(**kwargs)
+        context_data["title"] = "Главная"
+        context_data["count_mailing"] = len(Mailing.objects.all())
+        active_mailings_count = Mailing.objects.filter(status="Создано").count()
+        context_data["active_mailings_count"] = active_mailings_count
+        unique_clients_count = ReceiveMail.objects.distinct().count()
+        context_data["unique_clients_count"] = unique_clients_count
+        return context_data
 
 
 # Шаблон контакты
@@ -49,15 +54,15 @@ class Contacts(TemplateView):
 
 
 # Страница ответа на отправленное сообщение
-class Message(TemplateView):
+class Messages(TemplateView):
 
-    template_name = "mailing/message.html"
+    template_name = "mailing/message_list.html"
 
 
 # CRUD для рассылок
 class MailingListView(ListView):
     model = Mailing
-    template_name = "mailing/receivemail_list.html"
+    template_name = "mailing/mailing_list.html"
 
     def get_queryset(self):
         return get_mailing_from_cache()
@@ -66,7 +71,14 @@ class MailingListView(ListView):
 class MailingCreateView(LoginRequiredMixin, CreateView):
     model = Mailing
     form_class = MailingForm
+    template_name = 'mailing/mailing_form.html'
     success_url = reverse_lazy("mailing:mailing_list")
+
+    def form_valid(self, form):
+        recipient = form.save()
+        recipient.owner = self.request.user
+        recipient.save()
+        return super().form_valid(form)
 
 
 class MailingDetailView(LoginRequiredMixin, DetailView):
@@ -106,6 +118,14 @@ class ReceiveMailDetailView(LoginRequiredMixin, DetailView):
     model = ReceiveMail
     form_class = ReceiveMailModeratorForm
 
+    def get_object(self, queryset=None):
+        self.object = super().get_object(queryset)
+        if self.request.user.is_superuser:
+            return self.object
+        if self.object.owner != self.request.user and not self.request.user.is_superuser:
+            raise PermissionDenied
+        return self.object
+
 
 class ReceiveMailCreateView(LoginRequiredMixin, CreateView):
     model = ReceiveMail
@@ -137,23 +157,47 @@ class ReceiveMailUpdateView(LoginRequiredMixin, UpdateView):
 
 class ReceiveMailingDeleteView(LoginRequiredMixin, DeleteView):
     model = ReceiveMail
+    template_name = "mailing/receivemail_delete.html"
     success_url = reverse_lazy("mailing:receivemail_list")
 
 
 # CRUD для сообщений
-class MessageListView(ListView):
+class MessageListView(LoginRequiredMixin, ListView):
     model = Message
+
+
+    def get_queryset(self, *args, **kwargs):
+        if self.request.user.is_superuser:
+            return super().get_queryset()
+        else:
+            raise PermissionDenied
+
+
+
 
 
 class MessageDetailView(LoginRequiredMixin, DetailView):
     model = Message
     form_class = MessageForm
 
+    def get_object(self, queryset=None):
+        self.object = super().get_object(queryset)
+        if not self.request.user.is_superuser:
+            raise PermissionDenied
+        return self.object
+
 
 class MessageCreateView(LoginRequiredMixin, CreateView):
     model = Message
     form_class = MessageForm
+    template_name = 'mailing/message_form.html'
     success_url = reverse_lazy("mailing:message_list")
+
+    def form_valid(self, form):
+        recipient = form.save()
+        recipient.owner = self.request.user
+        recipient.save()
+        return super().form_valid(form)
 
 
 class MessageUpdateView(LoginRequiredMixin, UpdateView):
@@ -161,10 +205,22 @@ class MessageUpdateView(LoginRequiredMixin, UpdateView):
     form_class = MessageForm
     success_url = reverse_lazy("mailing:message_list")
 
+    def get_object(self, queryset=None):
+        self.object = super().get_object(queryset)
+        if not self.request.user.is_superuser:
+            raise PermissionDenied
+        return self.object
+
 
 class MessageDeleteView(LoginRequiredMixin, DeleteView):
     model = Message
     success_url = reverse_lazy("mailing:message_list")
+
+    def get_object(self, queryset=None):
+        self.object = super().get_object(queryset)
+        if not self.request.user.is_superuser:
+            raise PermissionDenied
+        return self.object
 
 
 class MailingAttemptCreateView(LoginRequiredMixin, CreateView):
@@ -181,12 +237,9 @@ class MailingAttemptListView(LoginRequiredMixin, ListView):
     model = AttemptMailing
     template_name = "mailing/attemptmailing_list.html"
 
-    def get_object(self, queryset=None):
-        self.object = super().get_object(queryset)
-        if self.request.user == self.object.owner:
-            self.object.save()
-            return self.object
+    def get_queryset(self, *args, **kwargs):
+        if self.request.user.is_superuser:
+            return super().get_queryset()
+        elif self.request.user.groups.filter(name="Пользователи").exists():
+            return super().get_queryset().filter(owner=self.request.user)
         raise PermissionDenied
-
-    def get_queryset(self):
-        return get_attempt_from_cache()

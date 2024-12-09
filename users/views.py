@@ -1,5 +1,6 @@
 import secrets
 
+from django.contrib.auth import logout
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.auth.views import LoginView, PasswordResetConfirmView, PasswordResetView
 from django.contrib.messages.views import SuccessMessageMixin
@@ -18,6 +19,9 @@ from users.models import User
 
 # Create your views here.
 
+def user_logout(request):
+    logout(request)
+    return render(request, template_name='home.html')
 
 class UserCreateView(CreateView):
     model = User

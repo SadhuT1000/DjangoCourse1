@@ -37,6 +37,9 @@ class Message(models.Model):
 
     subject = models.CharField(max_length=255, verbose_name="Тема письма")
     content = models.TextField(verbose_name="Содержимое письма")
+    owner = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, verbose_name="Владелец")
+
+
 
     def __str__(self):
         return self.content
@@ -45,6 +48,9 @@ class Message(models.Model):
         verbose_name = "письмо"
         verbose_name_plural = "письма"
         ordering = ["subject"]
+        permissions = [
+            ('can_blocking_sms', 'Может блокировать сообщение'),
+        ]
 
 
 class Mailing(models.Model):
@@ -60,16 +66,16 @@ class Mailing(models.Model):
         (FINISHED, "Завершена"),
     ]
 
-    first_sending = models.DateTimeField(verbose_name="Дата первой отправки")
-    end_sending = models.DateTimeField(verbose_name="Дата окончания отправки")
+    first_sending = models.DateTimeField(verbose_name="Дата первой отправки", null=True, blank=True)
+    end_sending = models.DateTimeField(verbose_name="Дата окончания отправки",null=True, blank=True)
 
     status = models.CharField(max_length=11, choices=STATUS_CHOICES, default=CREATED, verbose_name="Статус рассылки")
-
-    message = models.ForeignKey(Message, on_delete=models.CASCADE, verbose_name="Сообщение", related_name="mailings")
-    client = models.ManyToManyField(ReceiveMail, verbose_name="Клиент")
+    is_active = models.BooleanField(default=True, verbose_name="активна", null=True, blank=True)
+    message = models.ForeignKey(Message, on_delete=models.CASCADE, verbose_name="Сообщение", related_name="mailings", null=True, blank=True)
+    client = models.ManyToManyField(ReceiveMail, verbose_name="Клиент", null=True, blank=True)
 
     def __str__(self):
-        return f"{self.message}"
+        return f"{self.id}"
 
     class Meta:
         verbose_name = "Рассылка"
@@ -87,7 +93,7 @@ class AttemptMailing(models.Model):
     status = models.CharField(max_length=115, verbose_name="Статус попытки")
     response = models.TextField(verbose_name="Комментарии", null=True, blank=True)
     mailing = models.ForeignKey(Mailing, on_delete=models.CASCADE, verbose_name="Рассылка", related_name="mailing")
-
+    owner = models.ForeignKey(User, on_delete=models.SET_NULL,  null=True, blank=True, verbose_name="Владелец")
     def __str__(self):
         return f'{self.date_attempt} "{self.status}" '
 

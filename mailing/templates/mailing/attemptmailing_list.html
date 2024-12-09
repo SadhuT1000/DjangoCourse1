@@ -33,7 +33,7 @@
                     <td>{{ object.mailing.message.content|truncatechars:30 }}</td>
                     <td>{{ object.date_attempt}}</td>
                     <td>{{ object.status}}</td>
-                    <td>{{ object.server_response}}</td>
+                    <td>{{ object.response}}</td>
                     {% if request.user.is_superuser %}
                     <td>{{ object.mailing.owner }}</td>
                     {% endif %}

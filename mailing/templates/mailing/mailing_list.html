@@ -1,5 +1,4 @@
 {% extends 'mailing/base.html' %}
-
 {% block content %}
 <div class="container marketing mt-5">
     <div class="container text-center mt-3">
@@ -7,8 +6,10 @@
             <div class="col-4">
 
             </div>
-            <div class="col-4 mt-5" >
-                <a class="btn btn-success" href="{% url 'mailing:mailing_create' %}">Создать рассылку &raquo;</a></p>
+            <div class="col-4">
+                <h2>Сообщения</h2>
+                <a class="btn btn-success mt-3" href="{% url 'mailing:message_create' %}">Добавить сообщение
+                    &raquo;</a></p>
             </div>
             <div class="col-4">
 
@@ -17,19 +18,41 @@
 
     </div>
     <div class="row">
-        {% for mailing in object_list %}
-        <div class="col-lg-4">
+        <div class="table-responsive small">
+            <table class="table table-success table-striped">
+                <thead>
+                <tr>
+                    <th>Тема</th>
+                    <th>Сообщение</th>
+                    {% if request.user.is_superuser %}
+                    <th>Создал</th>
+                    {% endif %}
+                    <th>Действия</th>
+                </tr>
+                </thead>
 
-            <h2 class="fw-normal">{{mailing.first_sending }}</h2>
-            <p>{{mailing.message }}</p>
-            <a class="btn btn-primary" href="{% url 'mailing:mailing_detail' mailing.pk%}">Посмотреть &raquo;</a>
-            <a class="btn btn-primary" href="{% url 'mailing:mailing_update' mailing.pk%}">Редактировать &raquo;</a>
-            <a class="btn btn-danger" href="{% url 'mailing:mailing_delete' mailing.pk%}">Удалить</a>
+                {% for object in object_list %}
+                <tr>
+                    <td>{{ object.subject }}</td>
+                    <td>{{ object.content|truncatechars:30 }}</td>
+                    {% if request.user.is_superuser %}
+                    <td>{{ object.owner }}</td>
+                    {% endif %}
+                    <td>
+                        <a class="btn btn-primary btn-sm" href="{% url 'mailing:message_detail' object.pk%}">Посмотреть
+                            &raquo;</a>
+                        <a class="btn btn-primary btn-sm" href="{% url 'mailing:message_update' object.pk%}">Редактировать
+                            &raquo;</a>
+                        <a class="btn btn-danger btn-sm" href="{% url 'mailing:message_delete' object.pk%}">Удалить</a>
+                    </td>
 
-            <p></p>
+                </tr>
+                {% endfor%}
+            </table>
 
-        </div><!-- /.col-lg-4 -->
-        {% endfor%}
+        </div><!-- /.row -->
+
+
     </div><!-- /.row -->
 </div><!-- /.container -->
 {% endblock %}}

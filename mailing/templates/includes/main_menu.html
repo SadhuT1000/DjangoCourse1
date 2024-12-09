@@ -1,5 +1,5 @@
 
-
+{% load static %}
  <nav class="navbar navbar-expand-md navbar-dark fixed-top bg-dark">
     <div class="container-fluid">
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse"
@@ -29,7 +29,7 @@
                         {% load my_tags %}
                         {% if user.is_superuser%}
                         <li class="nav-item">
-                            <a class="nav-link" href="{% url 'mailing:send_list' %}">Статистика</a>
+                            <a class="nav-link" href="{% url 'mailing:attempt' %}">Статистика</a>
                         </li>
                         {% endif %}
                         {% endif %}
@@ -41,7 +41,7 @@
                             <ul class="dropdown-menu">
                                 {% if user.is_authenticated %}
                                 <li>
-                                    <a class="dropdown-item" href="{% url 'users:logout' %}">Выход</a>
+                                    <a class="dropdown-item" href="{% url 'users:logout' %}" method="post">Выход</a>
                                 </li>
                                 {% if user.is_superuser %}
                                 <li><a class="dropdown-item" href="{% url 'users:user_detail' user.pk%}">Профиль</a></li>
