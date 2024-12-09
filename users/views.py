@@ -21,7 +21,7 @@ from users.models import User
 
 def user_logout(request):
     logout(request)
-    return render(request, template_name='home.html')
+    return render(request, template_name='mailing/home.html')
 
 class UserCreateView(CreateView):
     model = User

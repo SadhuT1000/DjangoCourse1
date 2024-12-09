@@ -162,9 +162,9 @@ class ReceiveMailingDeleteView(LoginRequiredMixin, DeleteView):
 
 
 # CRUD для сообщений
-class MessageListView(LoginRequiredMixin, ListView):
+class MessageListView(ListView):
     model = Message
-
+    template_name = 'mailing/message_list.html'
 
     def get_queryset(self, *args, **kwargs):
         if self.request.user.is_superuser:
