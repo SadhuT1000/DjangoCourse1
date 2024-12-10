@@ -105,7 +105,7 @@ class UserForgotPasswordView(SuccessMessageMixin, PasswordResetView):
 
 
 class PasswordRecoveryView(FormView):
-    template_name = "users/password_recovery.html"
+    template_name = "password_recovery.html"
     form_class = PasswordRecoveryForm
     success_url = reverse_lazy("users:login")
 

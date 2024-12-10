@@ -72,7 +72,7 @@ class Mailing(models.Model):
     status = models.CharField(max_length=11, choices=STATUS_CHOICES, default=CREATED, verbose_name="Статус рассылки")
     is_active = models.BooleanField(default=True, verbose_name="активна", null=True, blank=True)
     message = models.ForeignKey(Message, on_delete=models.CASCADE, verbose_name="Сообщение", related_name="mailings", null=True, blank=True)
-    client = models.ManyToManyField(ReceiveMail, verbose_name="Клиент", null=True, blank=True)
+    client = models.ManyToManyField(ReceiveMail, verbose_name="Клиент",)
 
     def __str__(self):
         return f"{self.id}"
