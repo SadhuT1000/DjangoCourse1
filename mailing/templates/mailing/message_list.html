@@ -25,7 +25,7 @@
                 <tr>
                     <th>Тема</th>
                     <th>Сообщение</th>
-                    {% if request.user.is_superuser %}
+                    {% if user.is_authenticated %}
                     <th>Создал</th>
                     {% endif %}
                     <th>Действия</th>
@@ -36,7 +36,7 @@
                 <tr>
                     <td>{{ object.subject }}</td>
                     <td>{{ object.content|truncatechars:30 }}</td>
-                    {% if request.user.is_superuser %}
+                    {% if user.is_authenticated %}
                     <td>{{ object.owner }}</td>
                     {% endif %}
                     <td>

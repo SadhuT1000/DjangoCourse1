@@ -6,7 +6,7 @@ from django.conf import settings
 from django.conf.urls.static import static
 
 from mailing.apps import MailingConfig
-from mailing.services import send_email
+from mailing.services import block_mailing, run_mail
 from mailing.views import (Contacts, MailingAttemptCreateView, MailingAttemptListView, MailingCreateView,
                            MailingDeleteView, MailingDetailView,
                            MailingListView, MailingUpdateView, MessageCreateView, MessageDeleteView,
@@ -22,6 +22,7 @@ urlpatterns = [
     path("contacts/", cache_page(60)(Contacts.as_view()), name="contacts"),
     path("message/", Messages.as_view(), name="message"),
     path("mailing/", MailingListView.as_view(), name="mailing_list"),
+    path("mailing/<int:pk>/run_mail/", run_mail, name="run_mail"),
     path("mailing/<int:pk>/detail/", MailingDetailView.as_view(), name="mailing_detail"),
     path("mailing/new/", MailingCreateView.as_view(), name="mailing_create"),
     path("mailing/<int:pk>/edit/", MailingUpdateView.as_view(), name="mailing_update"),
@@ -38,7 +39,7 @@ urlpatterns = [
     path("message/<int:pk>/delete/", MessageDeleteView.as_view(), name="message_delete"),
     path("send/", MailingAttemptListView.as_view(), name="send_list"),
     path("send/create/", MailingAttemptCreateView.as_view(), name="send_create"),
-    path("send_mail/", send_email, name="send_mail"),
     path("attempt/", MailingAttemptListView.as_view(), name="attempt"),
+    path("block_mailing/<int:pk>", block_mailing, name="block_mailing"),
 ]
 

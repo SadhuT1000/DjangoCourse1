@@ -73,6 +73,7 @@ class Mailing(models.Model):
     is_active = models.BooleanField(default=True, verbose_name="активна", null=True, blank=True)
     message = models.ForeignKey(Message, on_delete=models.CASCADE, verbose_name="Сообщение", related_name="mailings", null=True, blank=True)
     client = models.ManyToManyField(ReceiveMail, verbose_name="Клиент",)
+    owner = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, verbose_name="Владелец")
 
     def __str__(self):
         return f"{self.id}"

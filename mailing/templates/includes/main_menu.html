@@ -21,18 +21,20 @@
                         <li class="nav-item">
                             <a class="nav-link" href="{% url 'mailing:receivemail_list' %}">Получатели</a>
                         </li>
-                        {% if user.is_superuser %}
+
                         <li class="nav-item">
                             <a class="nav-link" href="{% url 'mailing:message_list' %}">Сообщения</a>
                         </li>
                         {% endif %}
                         {% load my_tags %}
-                        {% if user.is_superuser%}
+
                         <li class="nav-item">
                             <a class="nav-link" href="{% url 'mailing:attempt' %}">Статистика</a>
                         </li>
-                        {% endif %}
-                        {% endif %}
+                         <li>
+                             <a class="nav-link" href="{% url 'mailing:contacts' %}">Контакты</a>
+                         </li>
+
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"
                                aria-expanded="false">Пользователь</a>
@@ -43,12 +45,13 @@
                                 <li>
                                     <a class="dropdown-item" href="{% url 'users:logout' %}" method="post">Выход</a>
                                 </li>
-                                {% if user.is_superuser %}
+                                 {% if user.is_authenticated %}
                                 <li><a class="dropdown-item" href="{% url 'users:user_detail' user.pk%}">Профиль</a></li>
 
                                 <li>
                                     <a class="dropdown-item" href="{% url 'users:user_list' %}">Список пользователей</a>
                                 </li>
+
                                 {% endif %}
                                 {% else %}
                                 <li>

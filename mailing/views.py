@@ -104,6 +104,7 @@ class MailingUpdateView(LoginRequiredMixin, UpdateView):
 
 class MailingDeleteView(LoginRequiredMixin, DeleteView):
     model = Mailing
+    template_name = "mailing/mailing_delete.html"
     success_url = reverse_lazy("mailing:mailing_list")
 
 
@@ -129,7 +130,7 @@ class ReceiveMailDetailView(LoginRequiredMixin, DetailView):
 
 class ReceiveMailCreateView(LoginRequiredMixin, CreateView):
     model = ReceiveMail
-    form_class = ReceiveMailModeratorForm
+    form_class = ReceiveMailForm
     template_name = "mailing/receivemail_form.html"
     success_url = reverse_lazy("mailing:receivemail_list")
 
@@ -164,13 +165,14 @@ class ReceiveMailingDeleteView(LoginRequiredMixin, DeleteView):
 # CRUD для сообщений
 class MessageListView(ListView):
     model = Message
+    form_class = MessageForm
     template_name = 'mailing/message_list.html'
 
     def get_queryset(self, *args, **kwargs):
-        if self.request.user.is_superuser:
-            return super().get_queryset()
-        else:
-            raise PermissionDenied
+
+        queryset = super().get_queryset()
+        print(queryset)  # Для отладки
+        return queryset
 
 
 
@@ -238,7 +240,7 @@ class MailingAttemptListView(LoginRequiredMixin, ListView):
     template_name = "mailing/attemptmailing_list.html"
 
     def get_queryset(self, *args, **kwargs):
-        if self.request.user.is_superuser:
+        if self.request.user:
             return super().get_queryset()
         elif self.request.user.groups.filter(name="Пользователи").exists():
             return super().get_queryset().filter(owner=self.request.user)

@@ -21,7 +21,7 @@
                     <th>Дата</th>
                     <th>Статус</th>
                     <th>Ответ сервера</th>
-                    {% if request.user.is_superuser %}
+                    {% if user.is_authenticated %}
                     <th>Создал</th>
                     {% endif %}
                 </tr>
@@ -34,7 +34,7 @@
                     <td>{{ object.date_attempt}}</td>
                     <td>{{ object.status}}</td>
                     <td>{{ object.response}}</td>
-                    {% if request.user.is_superuser %}
+                    {% if user.is_authenticated %}
                     <td>{{ object.mailing.owner }}</td>
                     {% endif %}
 
